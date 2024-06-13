@@ -331,8 +331,3 @@ class DataHandler():
     
     def get_df(self):
         return self.feature_engineer()
-
-df = pd.read_csv("assets/train_logs.csv")
-handler = DataHandler(df, KeystrokeConfig())
-new_df = handler.get_df()
-new_df.to_csv("result2_df.csv")
