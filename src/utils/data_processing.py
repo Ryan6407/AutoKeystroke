@@ -306,4 +306,4 @@ class DataHandler():
 df = pd.read_csv("assets/train_logs.csv")
 handler = DataHandler(df, KeystrokeConfig())
 new_df = handler.get_df()
-print(new_df)
+df.to_csv("result_df.csv")
