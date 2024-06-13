@@ -201,6 +201,9 @@ class DataHandler():
         self.df = df
         self.target_column = target_column
         self.config = config
+
+        if "id" not in self.config.features or "event_id" not in self.config.features or "down_time" not in self.config.features:
+            raise ValueError("Must have all three required features ('id', 'event_id', 'down_time')")
     
     def feature_engineer(self) -> pd.DataFrame:
 
@@ -276,19 +279,26 @@ class DataHandler():
         new_df["burst_count"] = burst_vals[:,0]
 
         new_df["verbosity"] = df_grouped.size().values
-        backspace_df = self.df.groupby(["up_event", "id"]).size()["Backspace"]
-        new_df = pd.merge(new_df, backspace_df.rename("backspaces"), on="id", how="left")
 
-        new_df["word_count"] = df_grouped["word_count"].last().values
+        if "up_event" in self.config.features:
+            backspace_df = self.df.groupby(["up_event", "id"]).size()["Backspace"]
+            new_df = pd.merge(new_df, backspace_df.rename("backspaces"), on="id", how="left")
 
-        period_df = self.df.groupby(["up_event", "id"]).size()["."]
-        new_df = pd.merge(new_df, period_df.rename("sent_count"), on="id", how="left")
+            new_df["backspaces"].fillna(0, inplace=True)
 
-        enter_df = self.df.groupby(["up_event", "id"]).size()["Enter"]
-        new_df = pd.merge(new_df, enter_df.rename("paragraph_count"), on="id", how="left")
+            period_df = self.df.groupby(["up_event", "id"]).size()["."]
+            new_df = pd.merge(new_df, period_df.rename("sent_count"), on="id", how="left")
 
-        nonprod_df = self.df.groupby(["activity", "id"]).size()["Nonproduction"]
-        new_df = pd.merge(new_df, nonprod_df.rename("Nonproduction"), on="id", how="left")
+            enter_df = self.df.groupby(["up_event", "id"]).size()["Enter"]
+            new_df = pd.merge(new_df, enter_df.rename("paragraph_count"), on="id", how="left")
+
+
+        if "word_count" in self.config.features:
+            new_df["word_count"] = df_grouped["word_count"].last().values
+
+        if "activity" in self.config.features:
+            nonprod_df = self.df.groupby(["activity", "id"]).size()["Nonproduction"]
+            new_df = pd.merge(new_df, nonprod_df.rename("Nonproduction"), on="id", how="left")
 
         new_df["avg_keystroke_speed"] = new_df["verbosity"] / df_grouped["time_elapsed"].tail(1).values
 
@@ -306,8 +316,6 @@ class DataHandler():
             new_df[f"Local_Extremes_{window}"] = df_grouped.progress_apply(lambda x: get_num_changes(x[f"window_{window}_sec_idx"].value_counts().reindex(range(max(x[f"window_{window}_sec_idx"])+1), fill_value=0))).values
             new_df[f"Average_Recurrence_{window}"] = df_grouped.progress_apply(lambda x: get_avg_recurrence(x[f"window_{window}_sec_idx"].value_counts().reindex(range(max(x[f"window_{window}_sec_idx"])+1), fill_value=0))).values
             new_df[f"StdDev_Recurrence_{window}"] = df_grouped.progress_apply(lambda x: get_stddev_recurrence(x[f"window_{window}_sec_idx"].value_counts().reindex(range(max(x[f"window_{window}_sec_idx"])+1), fill_value=0))).values
-
-        new_df["backspaces"].fillna(0, inplace=True)
 
         new_df["largest_latency"] = df_grouped["diffs"].max().values
 
