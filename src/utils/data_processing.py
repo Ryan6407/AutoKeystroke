@@ -206,7 +206,38 @@ class DataHandler():
 
         """
         For a raw keystroke log dataframe, we create a new dataframe suitable for supervised learning tasks.
-        Created features include 
+        Feature Descriptions:
+        Pause value(s): The number of pauses during the writing session that by duration were in between the value specified and the next
+        value specified
+        Mean pause duration: the average length of pauses between bursts in seconds
+        Burst count: the number of bursts during the typing session
+        Verbosity: total number of keystrokes in the typing session
+        Backspace count: total number of backspaces occuring during the typing session
+        Word count: total number of words typed out during the typing session
+        Sent count: total number of sentences during the typing session
+        Paragraph count: total number of paragraphs during the typing session
+        Nonproduction: total number of keystrokes not contributing to the overall text
+        Average keystroke speed: average amount of time spent on each keystroke
+        AR P1/P2: The two parameters of an autoregressive model fit to the number of keystrokes occuring over time within varying time intervals 
+        controlled by the user in the config
+        Slope degree: the slope of a linear model fit to the number of keystrokes occuring over time within varying time intervals 
+        controlled by the user in the config
+        Entropy: the shannon entropy of the number of keystrokes occuring over time within varying time intervals 
+        controlled by the user in the config
+        Degree uniformity: the shannon-jensen divergence of the number of keystrokes occuring over time within varying time intervals 
+        controlled by the user in the config
+        Local extremes: the number of local highs/lows occuring in the number of keystrokes occuring over time within varying time intervals 
+        controlled by the user in the config
+        Average recurrence: the average length of consecutive time slices where at least one keystroke event occured
+        Stddev recurrence: the standard deviation of lengths of consecutive time slices where at least one keystroke event occured
+        Largest latency: the biggest difference in time between two keystrokes
+        Median Latency: the median of differences between keystrokes
+        Smallest latency: the smallest difference between keystrokes
+        First pause: the initial pause at the start of the typing session
+        Cursor Back: the number of times during the typing session where the cursor moved backwards
+        Word Back: the number of words that were deleted during the typing session
+        Largest insert: the greatest number of words pasted into the text
+        Largest delete: the greatest number of words removed from the text
         """
 
         self.df.sort_values(['id', 'up_time'], inplace=True)
@@ -237,14 +268,12 @@ class DataHandler():
 
         new_df[f"pause_{self.config.pause_vals[-1]}"] = pause_counts.values
 
-        print(new_df)
-
         df_grouped = self.df.groupby("id")
 
         burst_vals = np.array(df_grouped.progress_apply(lambda x: count_bursts(x["diffs_seconds"].values)).values.tolist())
 
-        new_df["mean_pause_duration"] = burst_vals[:,0]
-        new_df["burst_count"] = burst_vals[:,1]
+        new_df["mean_pause_duration"] = burst_vals[:,1]
+        new_df["burst_count"] = burst_vals[:,0]
 
         new_df["verbosity"] = df_grouped.size().values
         backspace_df = self.df.groupby(["up_event", "id"]).size()["Backspace"]
@@ -306,4 +335,4 @@ class DataHandler():
 df = pd.read_csv("assets/train_logs.csv")
 handler = DataHandler(df, KeystrokeConfig())
 new_df = handler.get_df()
-df.to_csv("result_df.csv")
+new_df.to_csv("result2_df.csv")
