@@ -10,7 +10,7 @@ import numpy as np
 import random
 import math
 
-def view_keystrokes_per_time(num_keystrokes : List[int], width=1800, height=700):
+def view_keystrokes_per_time(num_keystrokes : List[int], width=1800, height=700, user_id=""):
 
     """
     Creates a graph of the number of keystrokes occuring in a certain slice of time for all slices
@@ -46,7 +46,7 @@ def view_keystrokes_per_time(num_keystrokes : List[int], width=1800, height=700)
     fig.add_trace(trace2)  
 
     fig.update_layout(
-            title="Keystroke Verbosity Per Time Slice",
+            title=f"Keystroke Verbosity Per Time Slice for User {user_id}",
             xaxis_title="Time Slice",
             yaxis_title="Frequency",
             width=width,
@@ -55,7 +55,7 @@ def view_keystrokes_per_time(num_keystrokes : List[int], width=1800, height=700)
 
     iplot(fig)
 
-def view_time_per_keystroke(keystroke_diffs : List[float], width=1800, height=700):
+def view_time_per_keystroke(keystroke_diffs : List[float], width=1800, height=700, user_id=""):
 
     """
     Creates a graph of the time differences between keystrokes in a typing session. 
@@ -76,7 +76,7 @@ def view_time_per_keystroke(keystroke_diffs : List[float], width=1800, height=70
     fig.add_trace(trace1)
 
     fig.update_layout(
-            title="Time Spent Between Keystroke",
+            title=f"Time Spent Between Keystroke for User {user_id}",
             xaxis_title="Keystroke Event Number",
             yaxis_title="Time (seconds)",
             width=width,
@@ -85,7 +85,7 @@ def view_time_per_keystroke(keystroke_diffs : List[float], width=1800, height=70
 
     iplot(fig)
 
-class KeystrokeVisualizer():
+class TemporalVisualizer():
 
     """
     Primary class for visualizing keystroke analytics
@@ -121,8 +121,8 @@ class KeystrokeVisualizer():
         :param int num_users: number of users to sample and visualize
         """
 
-        for i in range(len(num_users)):
+        for i in range(num_users):
             user_data = self._sample_user()
             user_data[f"window_30_sec_idx"] = user_data["time_elapsed"].apply(lambda x: math.floor(x / 30))
-            view_keystrokes_per_time(user_data.groupby("window_30_sec_idx").size().values)
-            view_time_per_keystroke(user_data["diffs_seconds"].values)
+            view_keystrokes_per_time(user_data.groupby("window_30_sec_idx").size().values, user_id=user_data["id"].values[0])
+            view_time_per_keystroke(user_data["diffs_seconds"].values, user_id=user_data["id"].values[0])

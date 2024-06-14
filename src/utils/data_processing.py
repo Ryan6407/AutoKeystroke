@@ -5,7 +5,6 @@ import math
 from scipy.spatial import distance
 import pandas as pd
 from typing import List
-from config import KeystrokeConfig
 from tqdm import tqdm 
 tqdm.pandas()
 
