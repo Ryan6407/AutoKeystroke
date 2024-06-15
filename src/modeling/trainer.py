@@ -1,7 +1,7 @@
-from src.visuals.temporal_analysis import TemporalVisualizer
-from src.visuals.base_analysis import BaseVisualizer
-from src.utils.config import KeystrokeConfig
-from src.utils.data_processing import DataHandler
+from visuals.temporal_analysis import TemporalVisualizer
+from visuals.base_analysis import BaseVisualizer
+from utils.config import KeystrokeConfig
+from utils.data_processing import DataHandler
 from lightgbm import LGBMRegressor
 from sklearn.linear_model import LinearRegression
 import pandas as pd
@@ -161,9 +161,4 @@ class KeystrokeTrainer():
         
         with open(f'{self.config.output_dir}/results.json', 'w') as fp:
             json.dump(self.results, fp)
-
-
-if __name__ == "__main__":
-    config = KeystrokeConfig(target_col="score", target_path="assets/train_scores.csv", validate=True, split_size=0.2, models=[LGBMRegressor(), LinearRegression()])
-    trainer = KeystrokeTrainer("assets/train_logs.csv", config=config)
-    trainer.run()
+    
