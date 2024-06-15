@@ -1,1 +1,0 @@
-{"results": [{"Model Name": "LGBMRegressor", "Metrics": [["Mean Squared Error", 0.4748690443834769], ["R2 Score", 0.5502179715991387]]}, {"Model Name": "LinearRegression", "Metrics": [["Mean Squared Error", 0.5049917453364403], ["R2 Score", 0.5216866329158041]]}]}
