@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autokeystroke"
+version = "0.0.9"
+authors = [
+  { name="Ryan Barretto", email="ryanbarretto70@gmail.com" },
+]
+description = "A python package for automatically processing and modeling keystroke log data"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ryan6407/AutoKeystroke"
+Issues = "https://github.com/Ryan6407/AutoKeystroke/issues"
